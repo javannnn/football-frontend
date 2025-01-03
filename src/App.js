@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './App.css'; // Create or modify a CSS file for custom styles.
+import './App.css'; // Ensure App.css is updated for better styles.
 
 const App = () => {
   const [name, setName] = useState('');
@@ -16,11 +16,24 @@ const App = () => {
       .catch((err) => console.error(err));
   }, []);
 
+  const fetchApplicants = () => {
+    fetch(`${process.env.REACT_APP_API_URL}/applicants`)
+      .then((res) => res.json())
+      .then((data) => setApplicants(data))
+      .catch((err) => console.error(err));
+  };
+
   const handleBook = () => {
     if (!name || !phone) {
       setErrorMessage('Name and phone number are required');
       return;
     }
+
+    if (applicants.filter((a) => a.status === 'Paid').length >= 20) {
+      setErrorMessage('Booking limit reached. No more spots available.');
+      return;
+    }
+
     setErrorMessage('');
     fetch(`${process.env.REACT_APP_API_URL}/book`, {
       method: 'POST',
@@ -42,18 +55,18 @@ const App = () => {
       .catch((err) => console.error(err));
   };
 
-  const fetchApplicants = () => {
-    fetch(`${process.env.REACT_APP_API_URL}/applicants`)
-      .then((res) => res.json())
-      .then((data) => setApplicants(data))
-      .catch((err) => console.error(err));
-  };
+  const confirmedCount = applicants.filter((a) => a.status === 'Paid').length;
 
   return (
     <div className="app-container">
       <h1>Yerer Football Booking App</h1>
       <div className="form-container">
-        <button className="admin-login-btn">Admin Login</button>
+        <button
+          className="admin-login-btn"
+          onClick={() => alert('Admin login placeholder')}
+        >
+          Admin Login
+        </button>
         <div className="form-group">
           <label>Name:</label>
           <input
@@ -82,11 +95,17 @@ const App = () => {
             max="20"
           />
         </div>
-        <button onClick={handleBook}>Book</button>
+        <button
+          onClick={handleBook}
+          disabled={confirmedCount >= 20}
+          className={confirmedCount >= 20 ? 'disabled-button' : ''}
+        >
+          Book
+        </button>
         {errorMessage && <p className="error">{errorMessage}</p>}
       </div>
 
-      <h2>Applicants ({applicants.filter((a) => a.status === 'Paid').length}/20 Confirmed)</h2>
+      <h2>Applicants ({confirmedCount}/20 Confirmed)</h2>
       <table className="applicants-table">
         <thead>
           <tr>
