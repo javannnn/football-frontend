@@ -6,6 +6,7 @@ const App = () => {
   const [spots, setSpots] = useState(1);
   const [applicants, setApplicants] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [paymentDetails, setPaymentDetails] = useState(null);
   const [dashboardStats, setDashboardStats] = useState(null);
 
   const fetchApplicants = () => {
@@ -36,13 +37,14 @@ const App = () => {
         if (data.error) {
           setErrorMessage(data.error);
         } else {
-          alert(`Booking successful! Please pay ETB ${data.payment_details.amount}.`);
-          setName('');
-          setSpots(1);
-          fetchApplicants();
+          setPaymentDetails(data.payment_details);
         }
       })
       .catch((err) => console.error(err));
+  };
+
+  const handlePaymentConfirm = () => {
+    alert("Payment confirmation sent! Your booking will be verified by the admin.");
   };
 
   const handleAdminLogin = () => {
@@ -90,6 +92,15 @@ const App = () => {
         {errorMessage && <p className="error">{errorMessage}</p>}
       </div>
 
+      {paymentDetails && (
+        <div className="payment-info">
+          <h2>Payment Instructions</h2>
+          <p>Please pay ETB {paymentDetails.amount} using the QR code or phone number <strong>{paymentDetails.phone_number}</strong>.</p>
+          <img src={paymentDetails.qr_code} alt="QR Code" className="qr-code" />
+          <button onClick={handlePaymentConfirm}>I Have Paid</button>
+        </div>
+      )}
+
       <h2>Confirmed Slots</h2>
       <div className="progress-bar">
         <div
@@ -107,30 +118,28 @@ const App = () => {
           <p>Total Slots: {dashboardStats.total_slots}</p>
           <p>Confirmed Slots: {dashboardStats.confirmed_slots}</p>
           <p>Pending Slots: {dashboardStats.pending_slots}</p>
+          <table className="applicants-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Spots</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dashboardStats.applicants.map((applicant) => (
+                <tr key={applicant.id}>
+                  <td>{applicant.id}</td>
+                  <td>{applicant.name}</td>
+                  <td>{applicant.slots}</td>
+                  <td>{applicant.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
-
-      <h2>Applicants</h2>
-      <table className="applicants-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Spots</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {applicants.map((applicant) => (
-            <tr key={applicant.id}>
-              <td>{applicant.id}</td>
-              <td>{applicant.name}</td>
-              <td>{applicant.slots}</td>
-              <td>{applicant.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 };
