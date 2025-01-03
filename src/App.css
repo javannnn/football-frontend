@@ -5,7 +5,7 @@
   max-width: 900px;
   padding: 20px;
   color: #333;
-  background: #f5f5f5;
+  background: #f9f9f9;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
@@ -23,6 +23,7 @@ h2 {
   color: #005bb5;
   font-size: 1.8rem;
   font-weight: 600;
+  text-align: center;
 }
 
 /* Form Styles */
@@ -71,12 +72,13 @@ button {
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
 }
 
 button:hover {
   background: #005bb5;
   transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 button:active {
@@ -88,11 +90,30 @@ button:active {
   cursor: not-allowed;
 }
 
-.error {
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 10px;
-  text-align: center;
+/* Links */
+.admin-login-btn,
+.rules-link,
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  margin-right: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #4caf50;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.admin-login-btn:hover,
+.rules-link:hover,
+.back-link:hover {
+  background: #388e3c;
+  transform: scale(1.05);
 }
 
 /* Table Styles */
@@ -105,7 +126,8 @@ table {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-th, td {
+th,
+td {
   padding: 15px;
   text-align: left;
   border-bottom: 1px solid #ddd;
@@ -126,45 +148,208 @@ tr:hover {
   background: #f1f1f1;
 }
 
-/* Admin Login Button */
-.admin-login-btn {
-  float: right;
-  padding: 10px 20px;
+/* Modal Styles */
+.ReactModal__Overlay {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  z-index: 1000;
+}
+
+.ReactModal__Content {
+  background: white;
   border: none;
-  border-radius: 8px;
-  background: #4caf50;
-  color: white;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
-}
-
-.admin-login-btn:hover {
-  background: #388e3c;
-  transform: scale(1.05);
-}
-
-/* Payment Info Section */
-.payment-info {
-  text-align: center;
-  margin-top: 40px;
-  padding: 20px;
-  background: #ffffff;
   border-radius: 12px;
+  padding: 20px;
+  max-width: 400px;
+  margin: auto;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0073e6;
+  margin-bottom: 10px;
+}
+
+.modal-content {
+  font-size: 1rem;
+  color: #333;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  width: 45%;
+}
+
+/* Progress Bar */
+.progress-bar {
+  background: #eee; /* neutral background */
+  height: 24px;
+  border-radius: 12px;
+  margin-top: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+.progress-bar-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #333;
+  font-weight: bold;
+}
+
+
+/* Rules & Teams */
+.rules-container {
+  background: #fff;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 800px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.payment-info p {
+.rules-container p {
   margin: 10px 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+.countdown-timer {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.locked {
+  color: red;
+  font-weight: bold;
+}
+
+.unlocked {
+  color: green;
+  font-weight: bold;
+}
+
+.team-section {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.team-section h3 {
+  margin-bottom: 10px;
+  color: #0073e6;
+}
+
+.team-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.team-section li {
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+.gk-rotation {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  table th,
+  table td {
+    padding: 10px;
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .rules-container {
+    padding: 15px;
+  }
+
+  .gk-rotation {
+    margin-top: 5px;
+    padding: 10px;
+  }
+}
+
+/* Paid Players Showcase */
+.paid-players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.player-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.player-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.player-card h3 {
+  font-size: 1.2rem;
+  color: #0073e6;
+  margin-bottom: 10px;
+}
+
+.player-card p {
+  font-size: 1rem;
   color: #555;
 }
 
-.qr-code {
-  max-width: 250px;
-  margin: 20px auto;
-  display: block;
+.status-tag {
+  display: inline-block;
+  padding: 5px 10px;
+  background: #4caf50;
+  color: white;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+  margin-top: 10px;
 }
