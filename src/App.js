@@ -3,33 +3,56 @@ import './App.css'; // Create or modify a CSS file for custom styles.
 
 const App = () => {
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
   const [spots, setSpots] = useState(1);
   const [applicants, setApplicants] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
 
   // Fetch applicants on load
-  useEffect(() => {
+  const fetchApplicants = () => {
     fetch(`${process.env.REACT_APP_API_URL}/applicants`)
       .then((res) => res.json())
       .then((data) => setApplicants(data))
       .catch((err) => console.error(err));
+  };
+
+  useEffect(() => {
+    fetchApplicants();
   }, []);
 
   const handleAdminLogin = () => {
     const password = prompt("Enter Admin Password:");
-    if (password === "your-admin-password") {
-      alert("Logged in as Admin!");
+    if (password === "supersecurepassword") {
+      const applicantId = prompt("Enter Applicant ID to update status:");
+      const newStatus = prompt("Enter new status (Paid/Pending):");
+      fetch(`${process.env.REACT_APP_API_URL}/update-status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: Number(applicantId), status: newStatus }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            alert(data.error);
+          } else {
+            alert(data.message);
+            fetchApplicants(); // Refresh the table
+          }
+        })
+        .catch((err) => console.error(err));
     } else {
       alert("Incorrect Password!");
     }
   };
 
   const handlePaymentInfo = () => {
+    if (!name || spots <= 0) {
+      setErrorMessage('Name and valid number of spots are required.');
+      return;
+    }
+    setErrorMessage('');
     const totalAmount = spots * 800;
     alert(`Please pay ETB ${totalAmount} using the QR code or phone number +251910187397.`);
     setName('');
-    setPhone('');
     setSpots(1);
   };
 
@@ -45,15 +68,6 @@ const App = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name"
-          />
-        </div>
-        <div className="form-group">
-          <label>Phone:</label>
-          <input
-            type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Enter your phone number"
           />
         </div>
         <div className="form-group">
@@ -74,6 +88,7 @@ const App = () => {
       <table className="applicants-table">
         <thead>
           <tr>
+            <th>ID</th>
             <th>Name</th>
             <th>Spots</th>
             <th>Status</th>
@@ -82,8 +97,9 @@ const App = () => {
         <tbody>
           {applicants.map((applicant) => (
             <tr key={applicant.id}>
+              <td>{applicant.id}</td>
               <td>{applicant.name}</td>
-              <td>{applicant.spots}</td>
+              <td>{applicant.slots}</td>
               <td>{applicant.status}</td>
             </tr>
           ))}
