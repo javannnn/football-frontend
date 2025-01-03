@@ -16,39 +16,6 @@ const App = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  const handleBook = () => {
-    if (!name || !phone) {
-      setErrorMessage('Name and phone number are required');
-      return;
-    }
-    setErrorMessage('');
-    fetch(`${process.env.REACT_APP_API_URL}/book`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, spots }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          setErrorMessage(data.error);
-        } else {
-          alert('Booking request submitted!');
-          setName('');
-          setPhone('');
-          setSpots(1);
-          fetchApplicants(); // Refresh the table
-        }
-      })
-      .catch((err) => console.error(err));
-  };
-
-  const fetchApplicants = () => {
-    fetch(`${process.env.REACT_APP_API_URL}/applicants`)
-      .then((res) => res.json())
-      .then((data) => setApplicants(data))
-      .catch((err) => console.error(err));
-  };
-
   const handleAdminLogin = () => {
     const password = prompt("Enter Admin Password:");
     if (password === "your-admin-password") {
@@ -56,6 +23,14 @@ const App = () => {
     } else {
       alert("Incorrect Password!");
     }
+  };
+
+  const handlePaymentInfo = () => {
+    const totalAmount = spots * 800;
+    alert(`Please pay ETB ${totalAmount} using the QR code or phone number +251910187397.`);
+    setName('');
+    setPhone('');
+    setSpots(1);
   };
 
   return (
@@ -91,7 +66,7 @@ const App = () => {
             max="20"
           />
         </div>
-        <button onClick={handleBook}>Book</button>
+        <button onClick={handlePaymentInfo}>Get Payment Info</button>
         {errorMessage && <p className="error">{errorMessage}</p>}
       </div>
 
@@ -114,6 +89,13 @@ const App = () => {
           ))}
         </tbody>
       </table>
+
+      <div className="payment-info">
+        <h2>Payment Instructions</h2>
+        <p>Please use the QR code below or the phone number <strong>+251910187397</strong> to make your payment. The amount depends on the number of spots selected.</p>
+        <p><strong>Price per spot: ETB 800</strong></p>
+        <img src={`${process.env.REACT_APP_API_URL}/static/chat_qr_code.jpg`} alt="QR Code" className="qr-code" />
+      </div>
     </div>
   );
 };
