@@ -231,13 +231,11 @@ const AdminDashboard = () => {
 // ====== Game Rules & Teams Component ======
 const GameRulesAndTeams = () => {
   const [applicants, setApplicants] = useState([]);
-  // Countdown + Locking
   const [timeLeft, setTimeLeft] = useState("");
   const [teamsLocked, setTeamsLocked] = useState(false);
-  // We store the generated teams
   const [teams, setTeams] = useState([]);
 
-  // Set the big game date: Jan 6, 2025, 00:00
+  // Jan 6, 2025, 00:00
   const gameDate = new Date(2025, 0, 6, 0, 0, 0).getTime();
   const lockThreshold = 24 * 60 * 60 * 1000; // 24 hours in ms
 
@@ -249,7 +247,6 @@ const GameRulesAndTeams = () => {
   }, []);
 
   useEffect(() => {
-    // Calculate and update countdown every second
     const timer = setInterval(() => {
       const now = Date.now();
       const distance = gameDate - now;
@@ -257,11 +254,9 @@ const GameRulesAndTeams = () => {
         setTeamsLocked(true);
       }
       if (distance < 0) {
-        // Game already started or passed
         setTimeLeft("The match has started!");
         clearInterval(timer);
       } else {
-        // Format time left
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor(
           (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
@@ -274,28 +269,24 @@ const GameRulesAndTeams = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // If teams are locked, freeze the teams at that moment
   useEffect(() => {
-    if (teamsLocked) {
-      if (teams.length === 0) {
-        createTeams();
-      }
+    if (teamsLocked && teams.length === 0) {
+      createTeams();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamsLocked, applicants]);
 
   const createTeams = () => {
     const paidPlayers = applicants.filter((a) => a.status === "Paid");
-    // Shuffle
     const shuffled = [...paidPlayers].sort(() => 0.5 - Math.random());
     const newTeams = [];
     let teamCount = Math.min(3, Math.ceil(shuffled.length / 5));
-
     let index = 0;
+
     for (let i = 0; i < teamCount; i++) {
       const teamSize =
         Math.floor(shuffled.length / teamCount) +
-        (i < (shuffled.length % teamCount) ? 1 : 0);
+        (i < shuffled.length % teamCount ? 1 : 0);
       const slice = shuffled.slice(index, index + teamSize);
       index += teamSize;
       newTeams.push(slice);
@@ -303,7 +294,6 @@ const GameRulesAndTeams = () => {
     setTeams(newTeams);
   };
 
-  // GK rotation
   const maxGames = 5;
   const getGKRotation = (team) => {
     const rotation = [];
@@ -367,19 +357,12 @@ const GameRulesAndTeams = () => {
 };
 
 // ====== Booking Page Component ======
-
-// We assume price is 800 birr per slot (covering 4 games).
 const PRICE_PER_SLOT = 800;
 const getProgressColor = (percent) => {
-  if (percent < 50) {
-    return "#4caf50"; // green
-  } else if (percent < 75) {
-    return "#ffeb3b"; // yellow
-  } else if (percent < 90) {
-    return "#ffa000"; // orange
-  } else {
-    return "#f44336"; // red
-  }
+  if (percent < 50) return "#4caf50";
+  if (percent < 75) return "#ffeb3b";
+  if (percent < 90) return "#ffa000";
+  return "#f44336";
 };
 
 const BookingPage = () => {
@@ -388,15 +371,16 @@ const BookingPage = () => {
   const [applicants, setApplicants] = useState([]);
   const [paidPlayers, setPaidPlayers] = useState([]);
 
-  // We'll show Payment Instructions on the same page after booking
   const [showPaymentSection, setShowPaymentSection] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
 
-  // For pop-up feedback (instead of browser alert)
+  // For toggling between "I Have Paid" button and thank-you note
+  const [hasPaid, setHasPaid] = useState(false);
+
+  // For pop-up feedback
   const [notifyOpen, setNotifyOpen] = useState(false);
   const [notifyMessage, setNotifyMessage] = useState("");
 
-  // We'll scroll to payment instructions
   const paymentRef = useRef(null);
 
   const openNotify = (msg) => {
@@ -426,16 +410,12 @@ const BookingPage = () => {
         if (data.error) {
           openNotify(data.error);
         } else {
-          // Calculate total for 4 games
           const amount = PRICE_PER_SLOT * spots;
           setTotalAmount(amount);
           setShowPaymentSection(true);
-
-          // Clear inputs
+          setHasPaid(false);
           setName("");
           setSpots(1);
-
-          // Scroll to payment instructions
           setTimeout(() => {
             if (paymentRef.current) {
               paymentRef.current.scrollIntoView({ behavior: "smooth" });
@@ -444,6 +424,11 @@ const BookingPage = () => {
         }
       })
       .catch((err) => openNotify(err.toString()));
+  };
+
+  const handlePaymentConfirmation = () => {
+    // Switch out the button with a slick "Thanks" message
+    setHasPaid(true);
   };
 
   const paidCount = paidPlayers.length;
@@ -496,9 +481,7 @@ const BookingPage = () => {
       </div>
 
       {/* Progress Bar */}
-      <h2>
-        Applicants ({paidCount}/20 Confirmed)
-      </h2>
+      <h2>Applicants ({paidCount}/20 Confirmed)</h2>
       <div className="progress-bar">
         <span
           style={{
@@ -523,18 +506,26 @@ const BookingPage = () => {
             <br />
             <strong>+251910187397</strong>
           </p>
-          <p>
-            You can also use this QR code to pay:
-          </p>
+          <p>You can also use this QR code to pay:</p>
           <img
             src={`${process.env.REACT_APP_API_URL}/static/chat_qr_code.jpg`}
             alt="QR Code"
             className="qr-code"
           />
+
+          {!hasPaid ? (
+            <button onClick={handlePaymentConfirmation} className="i-paid-btn">
+              I Have Paid
+            </button>
+          ) : (
+            <div className="paid-message">
+              <p>Thank you! Please wait for admin approval.</p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Notification Modal (replaces alert) */}
+      {/* Notification Modal */}
       <NotificationModal
         isOpen={notifyOpen}
         onClose={closeNotify}
