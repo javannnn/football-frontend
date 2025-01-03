@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import './App.css'; // Create or modify a CSS file for custom styles.
+import './App.css';
 
 const App = () => {
   const [name, setName] = useState('');
   const [spots, setSpots] = useState(1);
   const [applicants, setApplicants] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [dashboardStats, setDashboardStats] = useState(null);
 
-  // Fetch applicants on load
   const fetchApplicants = () => {
     fetch(`${process.env.REACT_APP_API_URL}/applicants`)
       .then((res) => res.json())
@@ -19,41 +19,47 @@ const App = () => {
     fetchApplicants();
   }, []);
 
+  const handleBook = () => {
+    if (!name || spots <= 0) {
+      setErrorMessage('Name and valid number of spots are required.');
+      return;
+    }
+
+    setErrorMessage('');
+    fetch(`${process.env.REACT_APP_API_URL}/book`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, slots: spots }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          setErrorMessage(data.error);
+        } else {
+          alert(`Booking successful! Please pay ETB ${data.payment_details.amount}.`);
+          setName('');
+          setSpots(1);
+          fetchApplicants();
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
   const handleAdminLogin = () => {
     const password = prompt("Enter Admin Password:");
     if (password === "supersecurepassword") {
-      const applicantId = prompt("Enter Applicant ID to update status:");
-      const newStatus = prompt("Enter new status (Paid/Pending):");
-      fetch(`${process.env.REACT_APP_API_URL}/update-status`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: Number(applicantId), status: newStatus }),
-      })
+      fetch(`${process.env.REACT_APP_API_URL}/admin-dashboard`)
         .then((res) => res.json())
-        .then((data) => {
-          if (data.error) {
-            alert(data.error);
-          } else {
-            alert(data.message);
-            fetchApplicants(); // Refresh the table
-          }
-        })
+        .then((data) => setDashboardStats(data))
         .catch((err) => console.error(err));
     } else {
       alert("Incorrect Password!");
     }
   };
 
-  const handlePaymentInfo = () => {
-    if (!name || spots <= 0) {
-      setErrorMessage('Name and valid number of spots are required.');
-      return;
-    }
-    setErrorMessage('');
-    const totalAmount = spots * 800;
-    alert(`Please pay ETB ${totalAmount} using the QR code or phone number +251910187397.`);
-    setName('');
-    setSpots(1);
+  const progressPercentage = () => {
+    const confirmed = applicants.filter((a) => a.status === "Confirmed").reduce((sum, a) => sum + a.slots, 0);
+    return (confirmed / 20) * 100;
   };
 
   return (
@@ -80,11 +86,31 @@ const App = () => {
             max="20"
           />
         </div>
-        <button onClick={handlePaymentInfo}>Get Payment Info</button>
+        <button onClick={handleBook}>Book</button>
         {errorMessage && <p className="error">{errorMessage}</p>}
       </div>
 
-      <h2>Applicants ({applicants.filter((a) => a.status === 'Paid').length}/20 Confirmed)</h2>
+      <h2>Confirmed Slots</h2>
+      <div className="progress-bar">
+        <div
+          className="progress-bar-fill"
+          style={{
+            width: `${progressPercentage()}%`,
+            background: progressPercentage() < 50 ? "green" : progressPercentage() < 75 ? "yellow" : "red",
+          }}
+        ></div>
+      </div>
+
+      {dashboardStats && (
+        <div className="admin-dashboard">
+          <h2>Admin Dashboard</h2>
+          <p>Total Slots: {dashboardStats.total_slots}</p>
+          <p>Confirmed Slots: {dashboardStats.confirmed_slots}</p>
+          <p>Pending Slots: {dashboardStats.pending_slots}</p>
+        </div>
+      )}
+
+      <h2>Applicants</h2>
       <table className="applicants-table">
         <thead>
           <tr>
@@ -105,13 +131,6 @@ const App = () => {
           ))}
         </tbody>
       </table>
-
-      <div className="payment-info">
-        <h2>Payment Instructions</h2>
-        <p>Please use the QR code below or the phone number <strong>+251910187397</strong> to make your payment. The amount depends on the number of spots selected.</p>
-        <p><strong>Price per spot: ETB 800</strong></p>
-        <img src={`${process.env.REACT_APP_API_URL}/static/chat_qr_code.jpg`} alt="QR Code" className="qr-code" />
-      </div>
     </div>
   );
 };
