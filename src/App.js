@@ -1,32 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+import AdminDashboard from './AdminDashboard';
 
-const App = () => {
+const BookingPage = () => {
   const [name, setName] = useState('');
   const [spots, setSpots] = useState(1);
   const [applicants, setApplicants] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [paymentDetails, setPaymentDetails] = useState(null);
-  const [dashboardStats, setDashboardStats] = useState(null);
 
-  const fetchApplicants = () => {
+  useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/applicants`)
       .then((res) => res.json())
       .then((data) => setApplicants(data))
       .catch((err) => console.error(err));
-  };
-
-  useEffect(() => {
-    fetchApplicants();
   }, []);
 
   const handleBook = () => {
-    if (!name || spots <= 0) {
-      setErrorMessage('Name and valid number of spots are required.');
-      return;
-    }
-
-    setErrorMessage('');
     fetch(`${process.env.REACT_APP_API_URL}/book`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -35,40 +24,20 @@ const App = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
-          setErrorMessage(data.error);
+          alert(data.error);
         } else {
-          setPaymentDetails(data.payment_details);
+          alert(`Pay ETB ${data.payment_details.amount} using the QR code.`);
+          setName('');
+          setSpots(1);
         }
       })
       .catch((err) => console.error(err));
-  };
-
-  const handlePaymentConfirm = () => {
-    alert("Payment confirmation sent! Your booking will be verified by the admin.");
-  };
-
-  const handleAdminLogin = () => {
-    const password = prompt("Enter Admin Password:");
-    if (password === "supersecurepassword") {
-      fetch(`${process.env.REACT_APP_API_URL}/admin-dashboard`)
-        .then((res) => res.json())
-        .then((data) => setDashboardStats(data))
-        .catch((err) => console.error(err));
-    } else {
-      alert("Incorrect Password!");
-    }
-  };
-
-  const progressPercentage = () => {
-    const confirmed = applicants.filter((a) => a.status === "Confirmed").reduce((sum, a) => sum + a.slots, 0);
-    return (confirmed / 20) * 100;
   };
 
   return (
     <div className="app-container">
       <h1>Yerer Football Booking App</h1>
       <div className="form-container">
-        <button className="admin-login-btn" onClick={handleAdminLogin}>Admin Login</button>
         <div className="form-group">
           <label>Name:</label>
           <input
@@ -89,58 +58,46 @@ const App = () => {
           />
         </div>
         <button onClick={handleBook}>Book</button>
-        {errorMessage && <p className="error">{errorMessage}</p>}
       </div>
-
-      {paymentDetails && (
-        <div className="payment-info">
-          <h2>Payment Instructions</h2>
-          <p>Please pay ETB {paymentDetails.amount} using the QR code or phone number <strong>{paymentDetails.phone_number}</strong>.</p>
-          <img src={paymentDetails.qr_code} alt="QR Code" className="qr-code" />
-          <button onClick={handlePaymentConfirm}>I Have Paid</button>
-        </div>
-      )}
-
-      <h2>Confirmed Slots</h2>
-      <div className="progress-bar">
-        <div
-          className="progress-bar-fill"
-          style={{
-            width: `${progressPercentage()}%`,
-            background: progressPercentage() < 50 ? "green" : progressPercentage() < 75 ? "yellow" : "red",
-          }}
-        ></div>
+      <h2>Applicants ({applicants.filter((a) => a.status === 'Paid').length}/20 Confirmed)</h2>
+      <table className="applicants-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Spots</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {applicants.map((applicant) => (
+            <tr key={applicant.id}>
+              <td>{applicant.name}</td>
+              <td>{applicant.spots}</td>
+              <td>{applicant.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="payment-info">
+        <p>Use this QR code or phone number to make your payment:</p>
+        <img
+          src={`${process.env.REACT_APP_API_URL}/static/chat_qr_code.jpg`}
+          alt="QR Code"
+        />
       </div>
-
-      {dashboardStats && (
-        <div className="admin-dashboard">
-          <h2>Admin Dashboard</h2>
-          <p>Total Slots: {dashboardStats.total_slots}</p>
-          <p>Confirmed Slots: {dashboardStats.confirmed_slots}</p>
-          <p>Pending Slots: {dashboardStats.pending_slots}</p>
-          <table className="applicants-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Spots</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dashboardStats.applicants.map((applicant) => (
-                <tr key={applicant.id}>
-                  <td>{applicant.id}</td>
-                  <td>{applicant.name}</td>
-                  <td>{applicant.slots}</td>
-                  <td>{applicant.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <Link to="/admin" className="admin-link">Admin Login</Link>
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <Router>
+      <Switch>
+        <Route exact path="/" component={BookingPage} />
+        <Route path="/admin" component={AdminDashboard} />
+      </Switch>
+    </Router>
   );
 };
 
