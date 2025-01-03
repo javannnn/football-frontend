@@ -1,22 +1,54 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Modal from "react-modal";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from "react-router-dom";
+
+// ====== Universal Reusable Modal for Feedback ======
+const NotificationModal = ({ isOpen, onClose, message }) => {
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      contentLabel="Notification"
+      className="modal"
+      overlayClassName="overlay"
+    >
+      <h2>Notice</h2>
+      <p>{message}</p>
+      <button onClick={onClose}>OK</button>
+    </Modal>
+  );
+};
 
 // ====== Admin Login Component ======
 const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  // For pop-up feedback
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
+  const closeModal = () => setModalOpen(false);
+
   const handleLogin = () => {
     const ADMIN_PASSWORD = "supersecurepassword"; // Replace with real password
     if (password === ADMIN_PASSWORD) {
-      alert("Login successful!");
-      navigate("/admin");
+      setModalMessage("Login successful!");
+      setModalOpen(true);
     } else {
-      alert("Incorrect password!");
+      setModalMessage("Incorrect password!");
+      setModalOpen(true);
     }
   };
+
+  // Once user closes the modal after success, navigate if password was correct
+  useEffect(() => {
+    if (!modalOpen && modalMessage === "Login successful!") {
+      navigate("/admin");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalOpen]);
 
   return (
     <div className="admin-login-container">
@@ -33,6 +65,12 @@ const AdminLogin = () => {
       <button onClick={handleLogin} className="login-button">
         Login
       </button>
+
+      <NotificationModal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        message={modalMessage}
+      />
     </div>
   );
 };
@@ -42,9 +80,21 @@ const AdminDashboard = () => {
   const [applicants, setApplicants] = useState([]);
   const [editingApplicant, setEditingApplicant] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  // Fields for editing
   const [newName, setNewName] = useState("");
   const [newSlots, setNewSlots] = useState("");
   const [newStatus, setNewStatus] = useState("");
+
+  // For pop-up feedback
+  const [msgModalOpen, setMsgModalOpen] = useState(false);
+  const [msgModalMessage, setMsgModalMessage] = useState("");
+
+  const openMsgModal = (text) => {
+    setMsgModalMessage(text);
+    setMsgModalOpen(true);
+  };
+  const closeMsgModal = () => setMsgModalOpen(false);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/applicants`)
@@ -80,9 +130,9 @@ const AdminDashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
-          alert(data.error);
+          openMsgModal(data.error);
         } else {
-          alert(data.message);
+          openMsgModal(data.message);
           setApplicants((prev) =>
             prev.map((app) =>
               app.id === editingApplicant.id
@@ -93,7 +143,7 @@ const AdminDashboard = () => {
           closeModal();
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => openMsgModal(err.toString()));
   };
 
   return (
@@ -164,6 +214,13 @@ const AdminDashboard = () => {
           <button onClick={closeModal}>Cancel</button>
         </div>
       </Modal>
+
+      <NotificationModal
+        isOpen={msgModalOpen}
+        onClose={closeMsgModal}
+        message={msgModalMessage}
+      />
+
       <Link to="/" className="back-link">
         Back to Booking
       </Link>
@@ -185,7 +242,6 @@ const GameRulesAndTeams = () => {
   const lockThreshold = 24 * 60 * 60 * 1000; // 24 hours in ms
 
   useEffect(() => {
-    // fetch applicants
     fetch(`${process.env.REACT_APP_API_URL}/applicants`)
       .then((res) => res.json())
       .then((data) => setApplicants(data))
@@ -205,16 +261,14 @@ const GameRulesAndTeams = () => {
         setTimeLeft("The match has started!");
         clearInterval(timer);
       } else {
-        // Format time left as days/hours/mins/secs
+        // Format time left
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor(
           (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
         );
         const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const secs = Math.floor((distance % (1000 * 60)) / 1000);
-        setTimeLeft(
-          `${days}d ${hours}h ${mins}m ${secs}s left until kickoff`
-        );
+        setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s left until kickoff`);
       }
     }, 1000);
     return () => clearInterval(timer);
@@ -223,7 +277,6 @@ const GameRulesAndTeams = () => {
   // If teams are locked, freeze the teams at that moment
   useEffect(() => {
     if (teamsLocked) {
-      // Generate final teams if not already done
       if (teams.length === 0) {
         createTeams();
       }
@@ -233,7 +286,7 @@ const GameRulesAndTeams = () => {
 
   const createTeams = () => {
     const paidPlayers = applicants.filter((a) => a.status === "Paid");
-    // Shuffle players for randomness
+    // Shuffle
     const shuffled = [...paidPlayers].sort(() => 0.5 - Math.random());
     const newTeams = [];
     let teamCount = Math.min(3, Math.ceil(shuffled.length / 5));
@@ -250,11 +303,9 @@ const GameRulesAndTeams = () => {
     setTeams(newTeams);
   };
 
-  // For GK rotation, let’s assume up to 5 games. 
+  // GK rotation
   const maxGames = 5;
   const getGKRotation = (team) => {
-    // For game i, the GK is team[i % team.length].
-    // That means if team has fewer players than maxGames, we cycle back around.
     const rotation = [];
     for (let i = 0; i < maxGames; i++) {
       const gkIndex = i % team.length;
@@ -266,42 +317,40 @@ const GameRulesAndTeams = () => {
   return (
     <div className="rules-container">
       <h1>Game Rules</h1>
-      <p>1. Three teams if enough players (paid). The loser steps out next game.</p>
-      <p>2. Each match is 10 minutes or the first team to score 2 goals.</p>
-      <p>3. If 0-0 after 10 minutes, add 3 minutes. Still 0-0? Penalties decide who goes out.</p>
-      <p>4. We play Monday, January 6th, 2025, from 12:00 AM to 8:00 AM. </p>
-      <p>5. Teams auto-selected from paid players. One GK per game, then rotate for the next.</p>
-      <p>6. Once you lose, you rest for one match, then return to topple the winners.</p>
+      <p>1. Three teams if enough (Paid). Loser steps out next game.</p>
+      <p>2. Each match is 10 minutes or first to 2 goals.</p>
+      <p>3. If 0-0 after 10 minutes, add 3. Still 0-0? Penalties decide who steps out.</p>
+      <p>4. Time: Monday, January 6th, 2025 (12 AM to 8 AM).</p>
+      <p>5. Teams auto-selected from paid players. GK rotates each game.</p>
+      <p>6. Lose one? Wait a game, then return for revenge.</p>
       <hr />
       <div className="countdown-timer">
         {timeLeft && !teamsLocked && <p>{timeLeft}</p>}
         {teamsLocked ? (
           <p className="locked">Teams are locked!</p>
         ) : (
-          <p className="unlocked">Teams will lock 24 hours before kickoff.</p>
+          <p className="unlocked">Teams lock 24 hours before kickoff.</p>
         )}
       </div>
 
       <h2>This Week’s Teams</h2>
       {!teamsLocked && (
         <p style={{ color: "#f00" }}>
-          Note: Teams aren’t final until locked. Keep paying before the cutoff!
+          Teams aren’t final until locked. Pay before the cutoff!
         </p>
       )}
 
       {teams.length === 0 ? (
-        <p>Nobody (or not enough) paid yet, or teams not generated. Pay up, folks!</p>
+        <p>Nobody or not enough paid yet.</p>
       ) : (
         teams.map((team, idx) => (
           <div key={idx} className="team-section">
             <h3>Team {idx + 1}</h3>
-            {/* Show normal roster */}
             <ul>
               {team.map((player) => (
                 <li key={player.id}>{player.name}</li>
               ))}
             </ul>
-            {/* Show GK rotation for maxGames */}
             <div className="gk-rotation">
               <strong>Goalkeeper Schedule:</strong>
               {getGKRotation(team).map((gkInfo) => (
@@ -318,7 +367,9 @@ const GameRulesAndTeams = () => {
 };
 
 // ====== Booking Page Component ======
-// Decide the fill color based on progress
+
+// We assume price is 800 birr per slot (covering 4 games).
+const PRICE_PER_SLOT = 800;
 const getProgressColor = (percent) => {
   if (percent < 50) {
     return "#4caf50"; // green
@@ -336,7 +387,23 @@ const BookingPage = () => {
   const [spots, setSpots] = useState(1);
   const [applicants, setApplicants] = useState([]);
   const [paidPlayers, setPaidPlayers] = useState([]);
-  const [qrModalIsOpen, setQrModalIsOpen] = useState(false);
+
+  // We'll show Payment Instructions on the same page after booking
+  const [showPaymentSection, setShowPaymentSection] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  // For pop-up feedback (instead of browser alert)
+  const [notifyOpen, setNotifyOpen] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
+
+  // We'll scroll to payment instructions
+  const paymentRef = useRef(null);
+
+  const openNotify = (msg) => {
+    setNotifyMessage(msg);
+    setNotifyOpen(true);
+  };
+  const closeNotify = () => setNotifyOpen(false);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/applicants`)
@@ -357,23 +424,29 @@ const BookingPage = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
-          alert(data.error);
+          openNotify(data.error);
         } else {
-          setQrModalIsOpen(true); // Show QR Code modal
+          // Calculate total for 4 games
+          const amount = PRICE_PER_SLOT * spots;
+          setTotalAmount(amount);
+          setShowPaymentSection(true);
+
+          // Clear inputs
           setName("");
           setSpots(1);
+
+          // Scroll to payment instructions
+          setTimeout(() => {
+            if (paymentRef.current) {
+              paymentRef.current.scrollIntoView({ behavior: "smooth" });
+            }
+          }, 200);
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => openNotify(err.toString()));
   };
 
-  const handlePaymentConfirmation = () => {
-    alert("Payment confirmed. Please wait for admin approval.");
-    setQrModalIsOpen(false);
-  };
-
-  // Calculate progress
-  const paidCount = paidPlayers.length; 
+  const paidCount = paidPlayers.length;
   const progressPercent = (paidCount / 20) * 100;
 
   return (
@@ -433,28 +506,40 @@ const BookingPage = () => {
             backgroundColor: getProgressColor(progressPercent),
           }}
         />
-        <div className="progress-bar-label">
-          {Math.floor(progressPercent)}%
-        </div>
+        <div className="progress-bar-label">{Math.floor(progressPercent)}%</div>
       </div>
 
-      {/* QR Modal */}
-      <Modal
-        isOpen={qrModalIsOpen}
-        onRequestClose={() => setQrModalIsOpen(false)}
-        contentLabel="QR Code Payment"
-        className="modal"
-        overlayClassName="overlay"
-      >
-        <h2>Payment Instructions</h2>
-        <p>Use the QR code or phone number to make your payment:</p>
-        <img
-          src={`${process.env.REACT_APP_API_URL}/static/chat_qr_code.jpg`}
-          alt="QR Code"
-          className="qr-code"
-        />
-        <button onClick={handlePaymentConfirmation}>I Have Paid</button>
-      </Modal>
+      {/* Payment Instructions Section */}
+      {showPaymentSection && (
+        <div ref={paymentRef} className="payment-info">
+          <h2>Payment Instructions</h2>
+          <p>
+            You selected {spots} slot(s). The monthly fee covers 4 games.
+            <br />
+            <strong>Total Amount: {totalAmount} Birr</strong>
+          </p>
+          <p>
+            Phone Number for Payment:
+            <br />
+            <strong>+251910187397</strong>
+          </p>
+          <p>
+            You can also use this QR code to pay:
+          </p>
+          <img
+            src={`${process.env.REACT_APP_API_URL}/static/chat_qr_code.jpg`}
+            alt="QR Code"
+            className="qr-code"
+          />
+        </div>
+      )}
+
+      {/* Notification Modal (replaces alert) */}
+      <NotificationModal
+        isOpen={notifyOpen}
+        onClose={closeNotify}
+        message={notifyMessage}
+      />
 
       <Link to="/login" className="admin-login-btn">
         Admin Login

@@ -148,7 +148,7 @@ tr:hover {
   background: #f1f1f1;
 }
 
-/* Modal Styles */
+/* Modals */
 .ReactModal__Overlay {
   background-color: rgba(0, 0, 0, 0.75) !important;
   z-index: 1000;
@@ -187,6 +187,16 @@ tr:hover {
   width: 45%;
 }
 
+/* Smaller QR Code */
+.qr-code {
+  width: 150px;
+  height: auto;
+  margin: 20px auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 /* Progress Bar */
 .progress-bar {
   background: #eee; /* neutral background */
@@ -212,7 +222,6 @@ tr:hover {
   color: #333;
   font-weight: bold;
 }
-
 
 /* Rules & Teams */
 .rules-container {
@@ -277,40 +286,6 @@ tr:hover {
   border: 1px solid #ddd;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .app-container {
-    padding: 10px;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
-
-  table th,
-  table td {
-    padding: 10px;
-  }
-
-  .form-container {
-    padding: 15px;
-  }
-
-  button {
-    font-size: 0.9rem;
-    padding: 10px;
-  }
-
-  .rules-container {
-    padding: 15px;
-  }
-
-  .gk-rotation {
-    margin-top: 5px;
-    padding: 10px;
-  }
-}
-
 /* Paid Players Showcase */
 .paid-players-grid {
   display: grid;
@@ -352,4 +327,127 @@ tr:hover {
   border-radius: 8px;
   font-size: 0.9rem;
   margin-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  table th,
+  table td {
+    padding: 10px;
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .rules-container {
+    padding: 15px;
+  }
+
+  .gk-rotation {
+    margin-top: 5px;
+    padding: 10px;
+  }
+
+  .qr-code {
+    width: 120px; /* even smaller on mobile */
+  }
+}
+
+/* Payment Instructions Section */
+.payment-info {
+  background: #ffffff;
+  margin-top: 40px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.payment-instructions {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  margin-top: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.payment-instructions h2 {
+  color: #0073e6;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.payment-instructions p {
+  font-size: 1.2rem;
+  margin: 10px 0;
+  color: #555;
+}
+
+.payment-instructions .qr-code {
+  max-width: 150px;
+  margin: 20px auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.payment-instructions button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #4caf50;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.payment-instructions button:hover {
+  background: #388e3c;
+  transform: scale(1.05);
+}
+
+.payment-instructions button:active {
+  transform: scale(0.98);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .payment-instructions {
+    padding: 15px;
+  }
+
+  .payment-instructions h2 {
+    font-size: 1.5rem;
+  }
+
+  .payment-instructions p {
+    font-size: 1rem;
+  }
+
+  .payment-instructions .qr-code {
+    max-width: 120px;
+  }
+
+  .payment-instructions button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
 }
