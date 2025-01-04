@@ -254,29 +254,29 @@ tr:hover {
   font-weight: bold;
 }
 
+.teams-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
 .team-section {
-  margin-top: 20px;
-  padding: 15px;
   border: 1px solid #ddd;
+  padding: 15px;
   border-radius: 8px;
-  background: #f9f9f9;
+  background-color: #f9f9f9;
 }
 
-.team-section h3 {
-  margin-bottom: 10px;
-  color: #0073e6;
-}
-
-.team-section ul {
+.team-list {
   list-style: none;
-  margin: 0;
   padding: 0;
 }
 
-.team-section li {
+.team-list li {
   margin: 5px 0;
-  font-weight: bold;
+  font-size: 1.1rem;
 }
+
 
 .gk-rotation {
   margin-top: 10px;

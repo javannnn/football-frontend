@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Modal from "react-modal";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from "react-router-dom";
+import "./App.css";
 
 // ====== Universal Reusable Modal for Feedback ======
 const NotificationModal = ({ isOpen, onClose, message }) => {
@@ -235,10 +236,10 @@ const GameRulesAndTeams = () => {
   const [teamsLocked, setTeamsLocked] = useState(false);
   const [teams, setTeams] = useState([]);
 
-  // Jan 6, 2025, 00:00
-  const gameDate = new Date(2025, 0, 6, 0, 0, 0).getTime();
+  const gameDate = new Date(2025, 0, 6, 0, 0, 0).getTime(); // Jan 6, 2025, 00:00
   const lockThreshold = 24 * 60 * 60 * 1000; // 24 hours in ms
 
+  // Fetch applicants
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/applicants`)
       .then((res) => res.json())
@@ -246,67 +247,56 @@ const GameRulesAndTeams = () => {
       .catch((err) => console.error(err));
   }, []);
 
+  // Countdown logic
   useEffect(() => {
     const timer = setInterval(() => {
       const now = Date.now();
       const distance = gameDate - now;
+
       if (distance <= lockThreshold) {
         setTeamsLocked(true);
       }
+
       if (distance < 0) {
         setTimeLeft("The match has started!");
         clearInterval(timer);
       } else {
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
-          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-        );
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const secs = Math.floor((distance % (1000 * 60)) / 1000);
         setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s left until kickoff`);
       }
     }, 1000);
+
     return () => clearInterval(timer);
   }, []);
 
+  // Create teams
   useEffect(() => {
-    if (teamsLocked && teams.length === 0) {
+    if (!teamsLocked && applicants.length >= 15) {
       createTeams();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamsLocked, applicants]);
 
   const createTeams = () => {
     const paidPlayers = applicants.filter((a) => a.status === "Paid");
-    if (paidPlayers.length < 15) {
-        alert("Not enough paid players to create teams. Minimum 15 required.");
-        return;
-    }
+    if (paidPlayers.length < 15) return;
+
     const shuffled = [...paidPlayers].sort(() => 0.5 - Math.random());
     const newTeams = [];
     let teamCount = Math.min(3, Math.ceil(shuffled.length / 5));
     let index = 0;
 
     for (let i = 0; i < teamCount; i++) {
-        const teamSize =
-            Math.floor(shuffled.length / teamCount) +
-            (i < shuffled.length % teamCount ? 1 : 0);
-        const slice = shuffled.slice(index, index + teamSize);
-        index += teamSize;
-        newTeams.push(slice);
+      const teamSize =
+        Math.floor(shuffled.length / teamCount) +
+        (i < shuffled.length % teamCount ? 1 : 0);
+      const slice = shuffled.slice(index, index + teamSize);
+      index += teamSize;
+      newTeams.push(slice);
     }
     setTeams(newTeams);
-};
-
-
-  const maxGames = 5;
-  const getGKRotation = (team) => {
-    const rotation = [];
-    for (let i = 0; i < maxGames; i++) {
-      const gkIndex = i % team.length;
-      rotation.push({ game: i + 1, name: team[gkIndex].name });
-    }
-    return rotation;
   };
 
   return (
@@ -331,35 +321,34 @@ const GameRulesAndTeams = () => {
       <h2>This Week’s Teams</h2>
       {!teamsLocked && (
         <p style={{ color: "#f00" }}>
-          Teams aren’t final until locked. Pay before the cutoff!
+          Teams are being randomly shuffled until the cutoff. Final teams will be locked 24 hours before kickoff.
         </p>
       )}
 
       {teams.length === 0 ? (
         <p>Nobody or not enough paid yet.</p>
       ) : (
-        teams.map((team, idx) => (
-          <div key={idx} className="team-section">
-            <h3>Team {idx + 1}</h3>
-            <ul>
-              {team.map((player) => (
-                <li key={player.id}>{player.name}</li>
-              ))}
-            </ul>
-            <div className="gk-rotation">
-              <strong>Goalkeeper Schedule:</strong>
-              {getGKRotation(team).map((gkInfo) => (
-                <p key={gkInfo.game}>
-                  Game {gkInfo.game}: {gkInfo.name}
-                </p>
-              ))}
+        <div className="teams-container">
+          {teams.map((team, idx) => (
+            <div key={idx} className="team-section">
+              <h3>Team {idx + 1}</h3>
+              <ul className="team-list">
+                {team.map((player, playerIdx) => (
+                  <li key={player.id}>
+                    {playerIdx === 0 ? "🧤 " : `${playerIdx + 1}. `} {player.name}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-        ))
+          ))}
+        </div>
       )}
     </div>
   );
 };
+
+
+
 
 // ====== Booking Page Component ======
 const PRICE_PER_SLOT = 800;
