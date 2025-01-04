@@ -1,40 +1,97 @@
-/* General Styles */
+/* =============================
+   Epic Football-Themed UI 
+   Ultra-dramatic, super animated,
+   perfect for mobile 
+   ============================= */
+
+/* Body Reset for Full-Width Goodness */
+body, html {
+  margin: 0;
+  padding: 0;
+  background: #041b07; /* keeps it immersive across the page */
+}
+
+/* Global Container */
 .app-container {
   font-family: 'Roboto', sans-serif;
-  margin: 0 auto;
+  color: #f2f2f2;
   max-width: 900px;
+  margin: 0 auto;
   padding: 20px;
-  color: #333;
-  background: #f9f9f9;
   border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(120deg, #094d14 0%, #041b07 100%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  /* Mobile-friendly width */
+  width: 95%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Stadium Spotlights (Subtle Animated Overlay) */
+.app-container::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 60%);
+  animation: rotateSpotlights 20s infinite linear;
+  pointer-events: none; 
+  opacity: 0.3; /* keeps it dramatic but not blinding */
+}
+
+@keyframes rotateSpotlights {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Heading Animations */
+@keyframes headingGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(255,230,0,0.5), 0 0 10px rgba(255,230,0,0.3);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255,230,0,0.8), 0 0 20px rgba(255,230,0,0.6);
+  }
 }
 
 h1 {
   text-align: center;
-  color: #0073e6;
-  font-size: 2.5rem;
+  color: #ffe600;
+  font-size: 2.8rem;
   font-weight: 700;
   margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  animation: headingGlow 2s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
 }
 
 h2 {
   margin-top: 40px;
-  color: #005bb5;
-  font-size: 1.8rem;
+  color: #ffc400;
+  font-size: 2rem;
   font-weight: 600;
   text-align: center;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 2;
 }
 
-/* Form Styles */
+/* Form Container */
 .form-container {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.07);
   padding: 25px;
   border-radius: 12px;
   margin-bottom: 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 2;
 }
 
+/* Form Fields */
 .form-group {
   margin-bottom: 20px;
 }
@@ -44,41 +101,42 @@ label {
   font-weight: bold;
   margin-bottom: 8px;
   font-size: 1rem;
-  color: #555;
+  color: #dcdcdc;
 }
 
 input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #aaa;
   border-radius: 8px;
   font-size: 1rem;
+  background: #fff;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input:focus {
-  border-color: #0073e6;
-  box-shadow: 0 0 8px rgba(0, 115, 230, 0.2);
+  border-color: #ffe600;
+  box-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
   outline: none;
 }
 
-/* Button Styles */
+/* Buttons */
 button {
   padding: 12px 20px;
   border: none;
   border-radius: 8px;
-  background: #0073e6;
-  color: white;
+  background: #ffe600;
+  color: #094d14;
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
 }
 
 button:hover {
-  background: #005bb5;
+  background: #ffbf00;
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 button:active {
@@ -90,7 +148,7 @@ button:active {
   cursor: not-allowed;
 }
 
-/* Links */
+/* Special Links */
 .admin-login-btn,
 .rules-link,
 .back-link {
@@ -100,8 +158,8 @@ button:active {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
-  background: #4caf50;
-  color: white;
+  background: #20c060;
+  color: #fff;
   font-weight: bold;
   font-size: 1rem;
   text-decoration: none;
@@ -112,63 +170,66 @@ button:active {
 .admin-login-btn:hover,
 .rules-link:hover,
 .back-link:hover {
-  background: #388e3c;
+  background: #179148;
   transform: scale(1.05);
 }
 
-/* Table Styles */
+/* Table */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 30px;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 2;
 }
 
 th,
 td {
   padding: 15px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #333;
 }
 
 th {
-  background: #0073e6;
-  color: white;
+  background: #179148;
+  color: #fff;
   font-size: 1rem;
   text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 tr:nth-child(even) {
-  background: #f9f9f9;
+  background: rgba(255,255,255,0.05);
 }
 
 tr:hover {
-  background: #f1f1f1;
+  background: rgba(255, 230, 0, 0.15);
 }
 
 /* Modals */
 .ReactModal__Overlay {
-  background-color: rgba(0, 0, 0, 0.75) !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
   z-index: 1000;
 }
 
 .ReactModal__Content {
-  background: white;
+  background: #fff;
   border: none;
   border-radius: 12px;
   padding: 20px;
   max-width: 400px;
   margin: auto;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
 }
 
 .modal-header {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #0073e6;
+  color: #ffe600;
   margin-bottom: 10px;
 }
 
@@ -187,31 +248,33 @@ tr:hover {
   width: 45%;
 }
 
-/* Smaller QR Code */
+/* QR Code */
 .qr-code {
   width: 150px;
   height: auto;
   margin: 20px auto;
   display: block;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* Progress Bar */
 .progress-bar {
-  background: #eee; /* neutral background */
+  background: #444;
   height: 24px;
   border-radius: 12px;
   margin-top: 20px;
   overflow: hidden;
   position: relative;
+  z-index: 2;
 }
 
 .progress-bar span {
   display: block;
   height: 100%;
   width: 0;
-  transition: width 0.4s ease, background-color 0.4s ease;
+  background: #ffe600;
+  transition: width 0.4s ease;
 }
 
 .progress-bar-label {
@@ -219,52 +282,71 @@ tr:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #333;
+  color: #fff;
   font-weight: bold;
 }
 
-/* Rules & Teams */
+/* ========================
+   Rules & Teams Container
+   ======================== */
 .rules-container {
-  background: #fff;
+  background: linear-gradient(135deg, #166e22, #0a3c11);
   margin: 20px auto;
   padding: 20px;
   border-radius: 12px;
   max-width: 800px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  color: #fff;
+  animation: floatUp 1.5s ease;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .rules-container p {
   margin: 10px 0;
   font-size: 1rem;
-  color: #333;
+  color: #f9f9f9;
 }
 
 .countdown-timer {
   text-align: center;
   margin: 20px 0;
+  color: #ffe600;
 }
 
 .locked {
-  color: red;
+  color: #ff2c2c;
   font-weight: bold;
 }
 
 .unlocked {
-  color: green;
+  color: #20c060;
   font-weight: bold;
 }
 
 .teams-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
 }
 
 .team-section {
-  border: 1px solid #ddd;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.2);
   padding: 15px;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
 }
 
 .team-list {
@@ -275,120 +357,130 @@ tr:hover {
 .team-list li {
   margin: 5px 0;
   font-size: 1.1rem;
+  color: #fff;
 }
-
 
 .gk-rotation {
   margin-top: 10px;
   padding: 10px;
-  background: #fff;
+  background: rgba(255,255,255,0.10);
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Paid Players Showcase */
+/* ========================
+   Paid Players (Dramatic)
+   ======================== */
 .paid-players-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
   margin-top: 30px;
+  position: relative;
+  z-index: 2;
 }
 
+/* Dramatic Football Card */
 .player-card {
-  background: #ffffff;
+  width: 140px;
+  max-width: 100%;
+  background: rgba(255,255,255,0.12);
   border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
   text-align: center;
   transition: transform 0.3s, box-shadow 0.3s;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
 }
 
-.player-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+/* Add a swirling gradient behind the text */
+.player-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 180deg at 50% 50%, 
+              rgba(255,255,0,0.2), rgba(255,0,0,0.2), 
+              rgba(0,255,0,0.2), rgba(0,0,255,0.2), 
+              rgba(255,255,0,0.2));
+  animation: swirlGradient 8s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+@keyframes swirlGradient {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .player-card h3 {
   font-size: 1.2rem;
-  color: #0073e6;
+  color: #ffe600;
   margin-bottom: 10px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
 }
 
 .player-card p {
   font-size: 1rem;
-  color: #555;
+  color: #f3f3f3;
+  position: relative;
+  z-index: 2;
 }
 
 .status-tag {
   display: inline-block;
   padding: 5px 10px;
-  background: #4caf50;
+  background: #20c060;
   color: white;
   border-radius: 8px;
   font-size: 0.9rem;
   margin-top: 10px;
+  position: relative;
+  z-index: 2;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .app-container {
-    padding: 10px;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
-
-  table th,
-  table td {
-    padding: 10px;
-  }
-
-  .form-container {
-    padding: 15px;
-  }
-
-  button {
-    font-size: 0.9rem;
-    padding: 10px;
-  }
-
-  .rules-container {
-    padding: 15px;
-  }
-
-  .gk-rotation {
-    margin-top: 5px;
-    padding: 10px;
-  }
-
-  .qr-code {
-    width: 120px; /* even smaller on mobile */
-  }
+.player-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(255,255,0,0.4);
 }
 
-/* Payment Instructions Section */
+/* ========================
+   Payment Instructions
+   ======================== */
 .payment-info {
-  background: #ffffff;
+  background: rgba(255,255,255,0.07);
   margin-top: 40px;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
   text-align: center;
+  position: relative;
+  z-index: 2;
 }
 
 .payment-instructions {
-  background: #ffffff;
+  background: rgba(255,255,255,0.07);
   padding: 25px;
   border-radius: 12px;
   margin-top: 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
   text-align: center;
+  color: #fff;
+  animation: floatUp 1s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .payment-instructions h2 {
-  color: #0073e6;
-  font-size: 1.8rem;
+  color: #ffe600;
+  font-size: 2rem;
   font-weight: bold;
   margin-bottom: 15px;
 }
@@ -396,7 +488,6 @@ tr:hover {
 .payment-instructions p {
   font-size: 1.2rem;
   margin: 10px 0;
-  color: #555;
 }
 
 .payment-instructions .qr-code {
@@ -404,14 +495,14 @@ tr:hover {
   margin: 20px auto;
   display: block;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .payment-instructions button {
   padding: 12px 20px;
   border: none;
   border-radius: 8px;
-  background: #4caf50;
+  background: #179148;
   color: white;
   font-weight: bold;
   font-size: 1rem;
@@ -420,7 +511,7 @@ tr:hover {
 }
 
 .payment-instructions button:hover {
-  background: #388e3c;
+  background: #0e6a31;
   transform: scale(1.05);
 }
 
@@ -428,14 +519,46 @@ tr:hover {
   transform: scale(0.98);
 }
 
-/* Mobile Responsiveness */
+/* ===========================
+   Mobile-First & Responsive
+   =========================== */
 @media (max-width: 768px) {
+  .app-container {
+    width: 100%;
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    margin-top: 30px;
+    font-size: 1.8rem;
+  }
+
+  .form-container,
+  .rules-container,
   .payment-instructions {
     padding: 15px;
   }
 
+  button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .team-section {
+    padding: 10px;
+  }
+
+  .player-card {
+    padding: 10px;
+    width: auto;
+  }
+
   .payment-instructions h2 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
 
   .payment-instructions p {
@@ -450,4 +573,16 @@ tr:hover {
     font-size: 0.9rem;
     padding: 10px;
   }
+}
+
+/* Force narrower fields for Names */
+input.name-field {
+  width: 250px;
+  max-width: 100%; 
+}
+
+/* Keep Spots field short */
+input.spots-field {
+  width: 100px;
+  max-width: 100%;
 }

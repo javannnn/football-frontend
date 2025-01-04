@@ -261,8 +261,8 @@ const GameRulesAndTeams = () => {
         setTimeLeft("The match has started!");
         clearInterval(timer);
       } else {
-        const days = Math.floor(distance / (1000 * 60 * 60 * 12));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 12)) / (1000 * 60 * 60));
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const secs = Math.floor((distance % (1000 * 60)) / 1000);
         setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s left until kickoff`);
@@ -305,7 +305,7 @@ const GameRulesAndTeams = () => {
       <p>1. Three teams if enough (Paid). Loser steps out next game.</p>
       <p>2. Each match is 10 minutes or first to 2 goals.</p>
       <p>3. If 0-0 after 10 minutes, add 3. Still 0-0? Penalties decide who steps out.</p>
-      <p>4. Time: Monday, January 6th, 2025 (12 AM to 8 AM).</p>
+      <p>4. Time: Monday, January 6th, 2025 (6 AM to 8 AM).</p>
       <p>5. Teams auto-selected from paid players. GK rotates each game.</p>
       <p>6. Lose one? Wait a game, then return for revenge.</p>
       <hr />
@@ -438,6 +438,7 @@ const BookingPage = () => {
           <label>Name:</label>
           <input
             type="text"
+            className="name-field"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name"
@@ -447,6 +448,7 @@ const BookingPage = () => {
           <label>Spots:</label>
           <input
             type="number"
+            className="spots-field"
             value={spots}
             onChange={(e) => setSpots(Number(e.target.value))}
             min="1"
