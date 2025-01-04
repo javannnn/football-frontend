@@ -237,7 +237,7 @@ const GameRulesAndTeams = () => {
   const [teams, setTeams] = useState([]);
 
   const gameDate = new Date(2025, 0, 6, 0, 0, 0).getTime(); // Jan 6, 2025, 00:00
-  const lockThreshold = 24 * 60 * 60 * 1000; // 24 hours in ms
+  const lockThreshold = 12 * 60 * 60 * 1000; // 12 hours in ms
 
   // Fetch applicants
   useEffect(() => {
@@ -261,8 +261,8 @@ const GameRulesAndTeams = () => {
         setTimeLeft("The match has started!");
         clearInterval(timer);
       } else {
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const days = Math.floor(distance / (1000 * 60 * 60 * 12));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 12)) / (1000 * 60 * 60));
         const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const secs = Math.floor((distance % (1000 * 60)) / 1000);
         setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s left until kickoff`);
@@ -314,14 +314,14 @@ const GameRulesAndTeams = () => {
         {teamsLocked ? (
           <p className="locked">Teams are locked!</p>
         ) : (
-          <p className="unlocked">Teams lock 24 hours before kickoff.</p>
+          <p className="unlocked">Teams lock 12 hours before kickoff.</p>
         )}
       </div>
 
       <h2>This Week’s Teams</h2>
       {!teamsLocked && (
         <p style={{ color: "#f00" }}>
-          Teams are being randomly shuffled until the cutoff. Final teams will be locked 24 hours before kickoff.
+          Teams are being randomly shuffled until the cutoff. Final teams will be locked 12 hours before kickoff.
         </p>
       )}
 
