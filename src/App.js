@@ -278,21 +278,26 @@ const GameRulesAndTeams = () => {
 
   const createTeams = () => {
     const paidPlayers = applicants.filter((a) => a.status === "Paid");
+    if (paidPlayers.length < 15) {
+        alert("Not enough paid players to create teams. Minimum 15 required.");
+        return;
+    }
     const shuffled = [...paidPlayers].sort(() => 0.5 - Math.random());
     const newTeams = [];
     let teamCount = Math.min(3, Math.ceil(shuffled.length / 5));
     let index = 0;
 
     for (let i = 0; i < teamCount; i++) {
-      const teamSize =
-        Math.floor(shuffled.length / teamCount) +
-        (i < shuffled.length % teamCount ? 1 : 0);
-      const slice = shuffled.slice(index, index + teamSize);
-      index += teamSize;
-      newTeams.push(slice);
+        const teamSize =
+            Math.floor(shuffled.length / teamCount) +
+            (i < shuffled.length % teamCount ? 1 : 0);
+        const slice = shuffled.slice(index, index + teamSize);
+        index += teamSize;
+        newTeams.push(slice);
     }
     setTeams(newTeams);
-  };
+};
+
 
   const maxGames = 5;
   const getGKRotation = (team) => {
