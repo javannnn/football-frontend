@@ -236,7 +236,7 @@ const GameRulesAndTeams = () => {
   const [teamsLocked, setTeamsLocked] = useState(false);
   const [teams, setTeams] = useState([]);
 
-  const gameDate = new Date(2025, 0, 6, 0, 0, 0).getTime(); // Jan 6, 2025, 00:00
+  const gameDate = new Date(2025, 0, 6, 6, 0, 0).getTime(); // Jan 6, 2025, 6:00
   const lockThreshold = 12 * 60 * 60 * 1000; // 12 hours in ms
 
   // Fetch applicants
