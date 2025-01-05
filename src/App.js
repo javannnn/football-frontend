@@ -258,9 +258,9 @@ const GameRulesAndTeams = () => {
   return (
     <div className="rules-container">
       <h1>Game Rules</h1>
-      <p>1. Each team: 1 GK + 5 players (total 6) or as you set. No auto-shuffle now.</p>
+      <p>1. Each team: 1 GK + 5 players (total 6) or as you set. No auto-shuffle now countdown is complete.</p>
       <p>2. Each match is 10 minutes or first to 2 goals.</p>
-      <p>3. Monday, January 6th, 2025 (6 AM to 8 AM). 12-hour lock is moot now since we don’t shuffle.</p>
+      <p>3. Monday, January 6th, 2025 (6 AM to 8 AM). .</p>
       <hr />
       <h2>This Week’s Teams</h2>
       {teams.length === 0 ? (
