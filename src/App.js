@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import Modal from "react-modal";
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Link,
+  useNavigate
+} from "react-router-dom";
 import "./App.css";
 
 // ====== Universal Reusable Modal for Feedback ======
@@ -26,7 +32,6 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  // For pop-up feedback
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
@@ -43,7 +48,6 @@ const AdminLogin = () => {
     }
   };
 
-  // Once user closes the modal after success, navigate if password was correct
   useEffect(() => {
     if (!modalOpen && modalMessage === "Login successful!") {
       navigate("/admin");
@@ -82,12 +86,10 @@ const AdminDashboard = () => {
   const [editingApplicant, setEditingApplicant] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  // Fields for editing
   const [newName, setNewName] = useState("");
   const [newSlots, setNewSlots] = useState("");
   const [newStatus, setNewStatus] = useState("");
 
-  // For pop-up feedback
   const [msgModalOpen, setMsgModalOpen] = useState(false);
   const [msgModalMessage, setMsgModalMessage] = useState("");
 
@@ -137,7 +139,12 @@ const AdminDashboard = () => {
           setApplicants((prev) =>
             prev.map((app) =>
               app.id === editingApplicant.id
-                ? { ...app, name: newName, slots: newSlots, status: newStatus }
+                ? {
+                    ...app,
+                    name: newName,
+                    slots: newSlots,
+                    status: newStatus,
+                  }
                 : app
             )
           );
@@ -168,7 +175,10 @@ const AdminDashboard = () => {
               <td>{applicant.slots}</td>
               <td>{applicant.status}</td>
               <td>
-                <button className="edit-button" onClick={() => openEditModal(applicant)}>
+                <button
+                  className="edit-button"
+                  onClick={() => openEditModal(applicant)}
+                >
                   Edit
                 </button>
               </td>
@@ -176,6 +186,7 @@ const AdminDashboard = () => {
           ))}
         </tbody>
       </table>
+
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
@@ -235,11 +246,12 @@ const GameRulesAndTeams = () => {
   const [timeLeft, setTimeLeft] = useState("");
   const [teamsLocked, setTeamsLocked] = useState(false);
   const [teams, setTeams] = useState([]);
+  const [hasCreatedTeams, setHasCreatedTeams] = useState(false);
 
-  const gameDate = new Date(2025, 0, 6, 6, 0, 0).getTime(); // Jan 6, 2025, 6:00
+  const gameDate = new Date(2025, 0, 6, 6, 0, 0).getTime(); // Jan 6, 2025, 6 AM
   const lockThreshold = 12 * 60 * 60 * 1000; // 12 hours in ms
 
-  // Fetch applicants
+  // 1. Fetch applicants
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/applicants`)
       .then((res) => res.json())
@@ -247,7 +259,20 @@ const GameRulesAndTeams = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  // Countdown logic
+  // 2. Check if we have final teams already saved
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL}/get-teams`)
+      .then((res) => res.json())
+      .then((savedTeams) => {
+        if (Array.isArray(savedTeams) && savedTeams.length > 0) {
+          setTeams(savedTeams);
+          setHasCreatedTeams(true);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  // 3. Countdown logic
   useEffect(() => {
     const timer = setInterval(() => {
       const now = Date.now();
@@ -262,7 +287,9 @@ const GameRulesAndTeams = () => {
         clearInterval(timer);
       } else {
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const hours = Math.floor(
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
         const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const secs = Math.floor((distance % (1000 * 60)) / 1000);
         setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s left until kickoff`);
@@ -272,20 +299,20 @@ const GameRulesAndTeams = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Create teams
+  // 4. Create teams once if not locked and not already saved
   useEffect(() => {
-    if (!teamsLocked && applicants.length >= 15) {
+    if (!teamsLocked && !hasCreatedTeams && applicants.length >= 15) {
       createTeams();
     }
-  }, [teamsLocked, applicants]);
+  }, [teamsLocked, applicants, hasCreatedTeams]);
 
   const createTeams = () => {
-    const paidPlayers = applicants.filter((a) => a.status === "Paid");
+    const paidPlayers = applicants.filter((p) => p.status === "Paid");
     if (paidPlayers.length < 15) return;
 
     const shuffled = [...paidPlayers].sort(() => 0.5 - Math.random());
     const newTeams = [];
-    let teamCount = Math.min(3, Math.ceil(shuffled.length / 5));
+    const teamCount = Math.min(3, Math.ceil(shuffled.length / 5));
     let index = 0;
 
     for (let i = 0; i < teamCount; i++) {
@@ -297,6 +324,17 @@ const GameRulesAndTeams = () => {
       newTeams.push(slice);
     }
     setTeams(newTeams);
+    setHasCreatedTeams(true);
+
+    // Immediately save these teams to the server
+    fetch(`${process.env.REACT_APP_API_URL}/save-teams`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newTeams),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log("Teams saved:", data))
+      .catch((err) => console.error(err));
   };
 
   return (
@@ -304,7 +342,7 @@ const GameRulesAndTeams = () => {
       <h1>Game Rules</h1>
       <p>1. Three teams if enough (Paid). Loser steps out next game.</p>
       <p>2. Each match is 10 minutes or first to 2 goals.</p>
-      <p>3. If 0-0 after 10 minutes, add 3. Still 0-0? Penalties decide who steps out.</p>
+      <p>3. If 0-0 after 10 minutes, add 3 more minutes. Still 0-0? Penalties decide who steps out.</p>
       <p>4. Time: Monday, January 6th, 2025 (6 AM to 8 AM).</p>
       <p>5. Teams auto-selected from paid players. GK rotates each game.</p>
       <p>6. Lose one? Wait a game, then return for revenge.</p>
@@ -321,7 +359,7 @@ const GameRulesAndTeams = () => {
       <h2>This Week’s Teams</h2>
       {!teamsLocked && (
         <p style={{ color: "#f00" }}>
-          Teams are being randomly shuffled until the cutoff. Final teams will be locked 12 hours before kickoff.
+          Shuffling continues until the 12-hour cutoff. Final teams lock then.
         </p>
       )}
 
@@ -347,9 +385,6 @@ const GameRulesAndTeams = () => {
   );
 };
 
-
-
-
 // ====== Booking Page Component ======
 const PRICE_PER_SLOT = 800;
 const getProgressColor = (percent) => {
@@ -368,10 +403,8 @@ const BookingPage = () => {
   const [showPaymentSection, setShowPaymentSection] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
 
-  // For toggling between "I Have Paid" button and thank-you note
   const [hasPaid, setHasPaid] = useState(false);
 
-  // For pop-up feedback
   const [notifyOpen, setNotifyOpen] = useState(false);
   const [notifyMessage, setNotifyMessage] = useState("");
 
@@ -388,7 +421,7 @@ const BookingPage = () => {
       .then((res) => res.json())
       .then((data) => {
         setApplicants(data);
-        setPaidPlayers(data.filter((applicant) => applicant.status === "Paid"));
+        setPaidPlayers(data.filter((a) => a.status === "Paid"));
       })
       .catch((err) => console.error(err));
   }, []);
@@ -421,7 +454,6 @@ const BookingPage = () => {
   };
 
   const handlePaymentConfirmation = () => {
-    // Switch out the button with a slick "Thanks" message
     setHasPaid(true);
   };
 
